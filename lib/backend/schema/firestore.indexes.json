@@ -1,0 +1,18 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Producto",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Estado_Proceso",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "Descripcion",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ]
+}
