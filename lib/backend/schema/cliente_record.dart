@@ -1,63 +1,116 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
+import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+
 import 'index.dart';
-import 'serializers.dart';
-import 'package:built_value/built_value.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
-part 'cliente_record.g.dart';
+class ClienteRecord extends FirestoreRecord {
+  ClienteRecord._(
+    DocumentReference reference,
+    Map<String, dynamic> data,
+  ) : super(reference, data) {
+    _initializeFields();
+  }
 
-abstract class ClienteRecord
-    implements Built<ClienteRecord, ClienteRecordBuilder> {
-  static Serializer<ClienteRecord> get serializer => _$clienteRecordSerializer;
+  // "nombre" field.
+  String? _nombre;
+  String get nombre => _nombre ?? '';
+  bool hasNombre() => _nombre != null;
 
-  String? get nombre;
+  // "apellido" field.
+  String? _apellido;
+  String get apellido => _apellido ?? '';
+  bool hasApellido() => _apellido != null;
 
-  String? get apellido;
+  // "telefono_contacto" field.
+  int? _telefonoContacto;
+  int get telefonoContacto => _telefonoContacto ?? 0;
+  bool hasTelefonoContacto() => _telefonoContacto != null;
 
-  @BuiltValueField(wireName: 'telefono_contacto')
-  int? get telefonoContacto;
+  // "dni" field.
+  int? _dni;
+  int get dni => _dni ?? 0;
+  bool hasDni() => _dni != null;
 
-  int? get dni;
+  // "email" field.
+  String? _email;
+  String get email => _email ?? '';
+  bool hasEmail() => _email != null;
 
-  String? get email;
+  // "referencia" field.
+  String? _referencia;
+  String get referencia => _referencia ?? '';
+  bool hasReferencia() => _referencia != null;
 
-  String? get referencia;
+  // "Direccion" field.
+  String? _direccion;
+  String get direccion => _direccion ?? '';
+  bool hasDireccion() => _direccion != null;
 
-  @BuiltValueField(wireName: 'Direccion')
-  String? get direccion;
+  // "fecha_alta" field.
+  DateTime? _fechaAlta;
+  DateTime? get fechaAlta => _fechaAlta;
+  bool hasFechaAlta() => _fechaAlta != null;
 
-  @BuiltValueField(wireName: kDocumentReferenceField)
-  DocumentReference? get ffRef;
-  DocumentReference get reference => ffRef!;
+  // "fecha_baja" field.
+  DateTime? _fechaBaja;
+  DateTime? get fechaBaja => _fechaBaja;
+  bool hasFechaBaja() => _fechaBaja != null;
 
-  static void _initializeBuilder(ClienteRecordBuilder builder) => builder
-    ..nombre = ''
-    ..apellido = ''
-    ..telefonoContacto = 0
-    ..dni = 0
-    ..email = ''
-    ..referencia = ''
-    ..direccion = '';
+  // "motivo_baja" field.
+  String? _motivoBaja;
+  String get motivoBaja => _motivoBaja ?? '';
+  bool hasMotivoBaja() => _motivoBaja != null;
+
+  void _initializeFields() {
+    _nombre = snapshotData['nombre'] as String?;
+    _apellido = snapshotData['apellido'] as String?;
+    _telefonoContacto = castToType<int>(snapshotData['telefono_contacto']);
+    _dni = castToType<int>(snapshotData['dni']);
+    _email = snapshotData['email'] as String?;
+    _referencia = snapshotData['referencia'] as String?;
+    _direccion = snapshotData['Direccion'] as String?;
+    _fechaAlta = snapshotData['fecha_alta'] as DateTime?;
+    _fechaBaja = snapshotData['fecha_baja'] as DateTime?;
+    _motivoBaja = snapshotData['motivo_baja'] as String?;
+  }
 
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('Cliente');
 
-  static Stream<ClienteRecord> getDocument(DocumentReference ref) => ref
-      .snapshots()
-      .map((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Stream<ClienteRecord> getDocument(DocumentReference ref) =>
+      ref.snapshots().map((s) => ClienteRecord.fromSnapshot(s));
 
-  static Future<ClienteRecord> getDocumentOnce(DocumentReference ref) => ref
-      .get()
-      .then((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Future<ClienteRecord> getDocumentOnce(DocumentReference ref) =>
+      ref.get().then((s) => ClienteRecord.fromSnapshot(s));
 
-  ClienteRecord._();
-  factory ClienteRecord([void Function(ClienteRecordBuilder) updates]) =
-      _$ClienteRecord;
+  static ClienteRecord fromSnapshot(DocumentSnapshot snapshot) =>
+      ClienteRecord._(
+        snapshot.reference,
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+      );
 
   static ClienteRecord getDocumentFromData(
-          Map<String, dynamic> data, DocumentReference reference) =>
-      serializers.deserializeWith(serializer,
-          {...mapFromFirestore(data), kDocumentReferenceField: reference})!;
+    Map<String, dynamic> data,
+    DocumentReference reference,
+  ) =>
+      ClienteRecord._(reference, mapFromFirestore(data));
+
+  @override
+  String toString() =>
+      'ClienteRecord(reference: ${reference.path}, data: $snapshotData)';
+
+  @override
+  int get hashCode => reference.path.hashCode;
+
+  @override
+  bool operator ==(other) =>
+      other is ClienteRecord &&
+      reference.path.hashCode == other.reference.path.hashCode;
 }
 
 Map<String, dynamic> createClienteRecordData({
@@ -68,20 +121,59 @@ Map<String, dynamic> createClienteRecordData({
   String? email,
   String? referencia,
   String? direccion,
+  DateTime? fechaAlta,
+  DateTime? fechaBaja,
+  String? motivoBaja,
 }) {
-  final firestoreData = serializers.toFirestore(
-    ClienteRecord.serializer,
-    ClienteRecord(
-      (c) => c
-        ..nombre = nombre
-        ..apellido = apellido
-        ..telefonoContacto = telefonoContacto
-        ..dni = dni
-        ..email = email
-        ..referencia = referencia
-        ..direccion = direccion,
-    ),
+  final firestoreData = mapToFirestore(
+    <String, dynamic>{
+      'nombre': nombre,
+      'apellido': apellido,
+      'telefono_contacto': telefonoContacto,
+      'dni': dni,
+      'email': email,
+      'referencia': referencia,
+      'Direccion': direccion,
+      'fecha_alta': fechaAlta,
+      'fecha_baja': fechaBaja,
+      'motivo_baja': motivoBaja,
+    }.withoutNulls,
   );
 
   return firestoreData;
+}
+
+class ClienteRecordDocumentEquality implements Equality<ClienteRecord> {
+  const ClienteRecordDocumentEquality();
+
+  @override
+  bool equals(ClienteRecord? e1, ClienteRecord? e2) {
+    return e1?.nombre == e2?.nombre &&
+        e1?.apellido == e2?.apellido &&
+        e1?.telefonoContacto == e2?.telefonoContacto &&
+        e1?.dni == e2?.dni &&
+        e1?.email == e2?.email &&
+        e1?.referencia == e2?.referencia &&
+        e1?.direccion == e2?.direccion &&
+        e1?.fechaAlta == e2?.fechaAlta &&
+        e1?.fechaBaja == e2?.fechaBaja &&
+        e1?.motivoBaja == e2?.motivoBaja;
+  }
+
+  @override
+  int hash(ClienteRecord? e) => const ListEquality().hash([
+        e?.nombre,
+        e?.apellido,
+        e?.telefonoContacto,
+        e?.dni,
+        e?.email,
+        e?.referencia,
+        e?.direccion,
+        e?.fechaAlta,
+        e?.fechaBaja,
+        e?.motivoBaja
+      ]);
+
+  @override
+  bool isValidKey(Object? o) => o is ClienteRecord;
 }

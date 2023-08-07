@@ -3,15 +3,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:page_transition/page_transition.dart';
-import '../flutter_flow_theme.dart';
-import '../../backend/backend.dart';
+import '/backend/backend.dart';
+import '/backend/schema/structs/index.dart';
 
-import '../../auth/firebase_user_provider.dart';
+import '../../auth/base_auth_user_provider.dart';
 
-import '../../index.dart';
-import '../../main.dart';
-import '../lat_lng.dart';
-import '../place.dart';
+import '/index.dart';
+import '/main.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import '/flutter_flow/lat_lng.dart';
+import '/flutter_flow/place.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 import 'serialization_util.dart';
 
 export 'package:go_router/go_router.dart';
@@ -20,8 +22,13 @@ export 'serialization_util.dart';
 const kTransitionInfoKey = '__transition_info__';
 
 class AppStateNotifier extends ChangeNotifier {
-  HaceloCircularFirebaseUser? initialUser;
-  HaceloCircularFirebaseUser? user;
+  AppStateNotifier._();
+
+  static AppStateNotifier? _instance;
+  static AppStateNotifier get instance => _instance ??= AppStateNotifier._();
+
+  BaseAuthUser? initialUser;
+  BaseAuthUser? user;
   bool showSplashImage = true;
   String? _redirectLocation;
 
@@ -46,11 +53,14 @@ class AppStateNotifier extends ChangeNotifier {
   /// to perform subsequent actions (such as navigation) afterwards.
   void updateNotifyOnAuthChange(bool notify) => notifyOnAuthChange = notify;
 
-  void update(HaceloCircularFirebaseUser newUser) {
+  void update(BaseAuthUser newUser) {
+    final shouldUpdate =
+        user?.uid == null || newUser.uid == null || user?.uid != newUser.uid;
     initialUser ??= newUser;
     user = newUser;
     // Refresh the app on auth change unless explicitly marked otherwise.
-    if (notifyOnAuthChange) {
+    // No need to update unless the user has changed.
+    if (notifyOnAuthChange && shouldUpdate) {
       notifyListeners();
     }
     // Once again mark the notifier as needing to update on auth change
@@ -68,7 +78,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       initialLocation: '/',
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
-      errorBuilder: (context, _) =>
+      errorBuilder: (context, state) =>
           appStateNotifier.loggedIn ? NavBarPage() : LoginWidget(),
       routes: [
         FFRoute(
@@ -105,8 +115,8 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               name: 'EditProfile',
               path: 'editProfile',
               asyncParams: {
-                'displayName': getDoc(['Users'], UsersRecord.serializer),
-                'email': getDoc(['Users'], UsersRecord.serializer),
+                'displayName': getDoc(['Users'], UsersRecord.fromSnapshot),
+                'email': getDoc(['Users'], UsersRecord.fromSnapshot),
               },
               builder: (context, params) => NavBarPage(
                 initialPage: '',
@@ -148,12 +158,23 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
             ),
             FFRoute(
               name: 'Modificar_Cliente',
-              path: 'Registrar_ClienteCopy',
+              path: 'modificarCliente',
               builder: (context, params) => NavBarPage(
                 initialPage: '',
                 page: ModificarClienteWidget(
                   idcliente: params.getParam('idcliente',
                       ParamType.DocumentReference, false, ['Cliente']),
+                ),
+              ),
+            ),
+            FFRoute(
+              name: 'Detalle_Producto',
+              path: 'detalleProducto',
+              builder: (context, params) => NavBarPage(
+                initialPage: '',
+                page: DetalleProductoWidget(
+                  idProducto: params.getParam('idProducto',
+                      ParamType.DocumentReference, false, ['Producto']),
                 ),
               ),
             ),
@@ -172,22 +193,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
                 initialPage: '',
                 page: RegistrarClienteWidget(),
               ),
-            ),
-            FFRoute(
-              name: 'Detalle_Producto',
-              path: 'detalleProducto',
-              builder: (context, params) => NavBarPage(
-                initialPage: '',
-                page: DetalleProductoWidget(
-                  idProducto: params.getParam('idProducto',
-                      ParamType.DocumentReference, false, ['Producto']),
-                ),
-              ),
-            ),
-            FFRoute(
-              name: 'Venta_producto',
-              path: 'ventaProducto',
-              builder: (context, params) => VentaProductoWidget(),
             ),
             FFRoute(
               name: 'Buscar_Productos',
@@ -220,14 +225,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               ),
             ),
             FFRoute(
-              name: 'Agenda',
-              path: 'agenda',
-              builder: (context, params) => NavBarPage(
-                initialPage: '',
-                page: AgendaWidget(),
-              ),
-            ),
-            FFRoute(
               name: 'Cambiar_Estado',
               path: 'cambiarEstado',
               builder: (context, params) => NavBarPage(
@@ -241,6 +238,14 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               builder: (context, params) => NavBarPage(
                 initialPage: '',
                 page: GenerarContratoPDFWidget(),
+              ),
+            ),
+            FFRoute(
+              name: 'Agenda',
+              path: 'agenda',
+              builder: (context, params) => NavBarPage(
+                initialPage: '',
+                page: AgendaWidget(),
               ),
             ),
             FFRoute(
@@ -271,22 +276,22 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               ),
             ),
             FFRoute(
-              name: 'Registrar_ClienteCopy',
-              path: 'registrarClienteCopy',
+              name: 'Detalle_Cliente',
+              path: 'detalleCliente',
               builder: (context, params) => NavBarPage(
                 initialPage: '',
-                page: RegistrarClienteCopyWidget(),
-              ),
-            ),
-            FFRoute(
-              name: 'DireccionCopy',
-              path: 'direccionCopy',
-              builder: (context, params) => NavBarPage(
-                initialPage: '',
-                page: DireccionCopyWidget(
+                page: DetalleClienteWidget(
                   idCliente: params.getParam('idCliente',
                       ParamType.DocumentReference, false, ['Cliente']),
                 ),
+              ),
+            ),
+            FFRoute(
+              name: 'Carrito',
+              path: 'carrito',
+              builder: (context, params) => CarritoWidget(
+                idCliente: params.getParam('idCliente',
+                    ParamType.DocumentReference, false, ['Cliente']),
               ),
             ),
             FFRoute(
@@ -294,29 +299,65 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               path: 'venderProductos',
               builder: (context, params) => NavBarPage(
                 initialPage: '',
-                page: VenderProductosWidget(),
-              ),
-            ),
-            FFRoute(
-              name: 'Carrito',
-              path: 'carrito',
-              builder: (context, params) => CarritoWidget(),
-            ),
-            FFRoute(
-              name: 'Detalle_ProductoCopy',
-              path: 'detalleProductoCopy',
-              builder: (context, params) => NavBarPage(
-                initialPage: '',
-                page: DetalleProductoCopyWidget(
+                page: VenderProductosWidget(
                   idCliente: params.getParam('idCliente',
                       ParamType.DocumentReference, false, ['Cliente']),
                 ),
               ),
+            ),
+            FFRoute(
+              name: 'Cliente_A_Facturar',
+              path: 'clienteFacturar',
+              builder: (context, params) => NavBarPage(
+                initialPage: '',
+                page: ClienteAFacturarWidget(),
+              ),
+            ),
+            FFRoute(
+              name: 'Confirmar_Venta_Producto',
+              path: 'confirmarVentaProducto',
+              builder: (context, params) => ConfirmarVentaProductoWidget(
+                idCliente: params.getParam('idCliente',
+                    ParamType.DocumentReference, false, ['Cliente']),
+                idProducto: params.getParam('idProducto',
+                    ParamType.DocumentReference, false, ['Producto']),
+              ),
+            ),
+            FFRoute(
+              name: 'Factura',
+              path: 'factura',
+              builder: (context, params) => FacturaWidget(
+                idCliente: params.getParam('idCliente',
+                    ParamType.DocumentReference, false, ['Cliente']),
+                idVenta: params.getParam(
+                    'idVenta', ParamType.DocumentReference, false, ['venta']),
+                subtotal: params.getParam('subtotal', ParamType.double),
+                bonificacion: params.getParam('bonificacion', ParamType.double),
+                total: params.getParam('total', ParamType.double),
+                idVent: params.getParam(
+                    'idVent', ParamType.DocumentReference, false, ['venta']),
+                idFactura: params.getParam('idFactura',
+                    ParamType.DocumentReference, false, ['Factura']),
+              ),
+            ),
+            FFRoute(
+              name: 'LeerQR',
+              path: 'LeerQR',
+              builder: (context, params) => LeerQRWidget(),
+            ),
+            FFRoute(
+              name: 'shopping',
+              path: 'shopping',
+              builder: (context, params) => ShoppingWidget(),
+            ),
+            FFRoute(
+              name: 'Contactos',
+              path: 'contactos',
+              builder: (context, params) => ContactosWidget(),
             )
           ].map((r) => r.toRoute(appStateNotifier)).toList(),
-        ).toRoute(appStateNotifier),
-      ],
-      urlPathStrategy: UrlPathStrategy.path,
+        ),
+      ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
 
 extension NavParamExtensions on Map<String, String?> {
@@ -331,8 +372,8 @@ extension NavigationExtensions on BuildContext {
   void goNamedAuth(
     String name,
     bool mounted, {
-    Map<String, String> params = const <String, String>{},
-    Map<String, String> queryParams = const <String, String>{},
+    Map<String, String> pathParameters = const <String, String>{},
+    Map<String, String> queryParameters = const <String, String>{},
     Object? extra,
     bool ignoreRedirect = false,
   }) =>
@@ -340,16 +381,16 @@ extension NavigationExtensions on BuildContext {
           ? null
           : goNamed(
               name,
-              params: params,
-              queryParams: queryParams,
+              pathParameters: pathParameters,
+              queryParameters: queryParameters,
               extra: extra,
             );
 
   void pushNamedAuth(
     String name,
     bool mounted, {
-    Map<String, String> params = const <String, String>{},
-    Map<String, String> queryParams = const <String, String>{},
+    Map<String, String> pathParameters = const <String, String>{},
+    Map<String, String> queryParameters = const <String, String>{},
     Object? extra,
     bool ignoreRedirect = false,
   }) =>
@@ -357,32 +398,41 @@ extension NavigationExtensions on BuildContext {
           ? null
           : pushNamed(
               name,
-              params: params,
-              queryParams: queryParams,
+              pathParameters: pathParameters,
+              queryParameters: queryParameters,
               extra: extra,
             );
+
+  void safePop() {
+    // If there is only one route on the stack, navigate to the initial
+    // page instead of popping.
+    if (canPop()) {
+      pop();
+    } else {
+      go('/');
+    }
+  }
 }
 
 extension GoRouterExtensions on GoRouter {
-  AppStateNotifier get appState =>
-      (routerDelegate.refreshListenable as AppStateNotifier);
+  AppStateNotifier get appState => AppStateNotifier.instance;
   void prepareAuthEvent([bool ignoreRedirect = false]) =>
       appState.hasRedirect() && !ignoreRedirect
           ? null
           : appState.updateNotifyOnAuthChange(false);
   bool shouldRedirect(bool ignoreRedirect) =>
       !ignoreRedirect && appState.hasRedirect();
+  void clearRedirectLocation() => appState.clearRedirectLocation();
   void setRedirectLocationIfUnset(String location) =>
-      (routerDelegate.refreshListenable as AppStateNotifier)
-          .updateNotifyOnAuthChange(false);
+      appState.updateNotifyOnAuthChange(false);
 }
 
 extension _GoRouterStateExtensions on GoRouterState {
   Map<String, dynamic> get extraMap =>
       extra != null ? extra as Map<String, dynamic> : {};
   Map<String, dynamic> get allParams => <String, dynamic>{}
-    ..addAll(params)
-    ..addAll(queryParams)
+    ..addAll(pathParameters)
+    ..addAll(queryParameters)
     ..addAll(extraMap);
   TransitionInfo get transitionInfo => extraMap.containsKey(kTransitionInfoKey)
       ? extraMap[kTransitionInfoKey] as TransitionInfo
@@ -438,7 +488,8 @@ class FFParameters {
       return param;
     }
     // Return serialized value.
-    return deserializeParam<T>(param, type, isList, collectionNamePath);
+    return deserializeParam<T>(param, type, isList,
+        collectionNamePath: collectionNamePath);
   }
 }
 
@@ -462,7 +513,7 @@ class FFRoute {
   GoRoute toRoute(AppStateNotifier appStateNotifier) => GoRoute(
         name: name,
         path: path,
-        redirect: (state) {
+        redirect: (context, state) {
           if (appStateNotifier.shouldRedirect) {
             final redirectLocation = appStateNotifier.getRedirectLocation();
             appStateNotifier.clearRedirectLocation();
@@ -489,8 +540,8 @@ class FFRoute {
                   child: Center(
                     child: Image.asset(
                       'assets/images/hc-logo-blanco-rojo.png',
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      height: MediaQuery.of(context).size.height * 0.8,
+                      width: MediaQuery.sizeOf(context).width * 0.8,
+                      height: MediaQuery.sizeOf(context).height * 0.8,
                       fit: BoxFit.contain,
                     ),
                   ),

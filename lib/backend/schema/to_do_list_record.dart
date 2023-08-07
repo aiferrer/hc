@@ -1,56 +1,92 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
+import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+
 import 'index.dart';
-import 'serializers.dart';
-import 'package:built_value/built_value.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
-part 'to_do_list_record.g.dart';
+class ToDoListRecord extends FirestoreRecord {
+  ToDoListRecord._(
+    DocumentReference reference,
+    Map<String, dynamic> data,
+  ) : super(reference, data) {
+    _initializeFields();
+  }
 
-abstract class ToDoListRecord
-    implements Built<ToDoListRecord, ToDoListRecordBuilder> {
-  static Serializer<ToDoListRecord> get serializer =>
-      _$toDoListRecordSerializer;
+  // "toDoDate" field.
+  DateTime? _toDoDate;
+  DateTime? get toDoDate => _toDoDate;
+  bool hasToDoDate() => _toDoDate != null;
 
-  DateTime? get toDoDate;
+  // "toDoName" field.
+  String? _toDoName;
+  String get toDoName => _toDoName ?? '';
+  bool hasToDoName() => _toDoName != null;
 
-  String? get toDoName;
+  // "toDoDescription" field.
+  String? _toDoDescription;
+  String get toDoDescription => _toDoDescription ?? '';
+  bool hasToDoDescription() => _toDoDescription != null;
 
-  String? get toDoDescription;
+  // "toDoState" field.
+  bool? _toDoState;
+  bool get toDoState => _toDoState ?? false;
+  bool hasToDoState() => _toDoState != null;
 
-  bool? get toDoState;
+  // "completedDate" field.
+  DateTime? _completedDate;
+  DateTime? get completedDate => _completedDate;
+  bool hasCompletedDate() => _completedDate != null;
 
-  DateTime? get completedDate;
+  // "user" field.
+  DocumentReference? _user;
+  DocumentReference? get user => _user;
+  bool hasUser() => _user != null;
 
-  DocumentReference? get user;
-
-  @BuiltValueField(wireName: kDocumentReferenceField)
-  DocumentReference? get ffRef;
-  DocumentReference get reference => ffRef!;
-
-  static void _initializeBuilder(ToDoListRecordBuilder builder) => builder
-    ..toDoName = ''
-    ..toDoDescription = ''
-    ..toDoState = false;
+  void _initializeFields() {
+    _toDoDate = snapshotData['toDoDate'] as DateTime?;
+    _toDoName = snapshotData['toDoName'] as String?;
+    _toDoDescription = snapshotData['toDoDescription'] as String?;
+    _toDoState = snapshotData['toDoState'] as bool?;
+    _completedDate = snapshotData['completedDate'] as DateTime?;
+    _user = snapshotData['user'] as DocumentReference?;
+  }
 
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('ToDoList');
 
-  static Stream<ToDoListRecord> getDocument(DocumentReference ref) => ref
-      .snapshots()
-      .map((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Stream<ToDoListRecord> getDocument(DocumentReference ref) =>
+      ref.snapshots().map((s) => ToDoListRecord.fromSnapshot(s));
 
-  static Future<ToDoListRecord> getDocumentOnce(DocumentReference ref) => ref
-      .get()
-      .then((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Future<ToDoListRecord> getDocumentOnce(DocumentReference ref) =>
+      ref.get().then((s) => ToDoListRecord.fromSnapshot(s));
 
-  ToDoListRecord._();
-  factory ToDoListRecord([void Function(ToDoListRecordBuilder) updates]) =
-      _$ToDoListRecord;
+  static ToDoListRecord fromSnapshot(DocumentSnapshot snapshot) =>
+      ToDoListRecord._(
+        snapshot.reference,
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+      );
 
   static ToDoListRecord getDocumentFromData(
-          Map<String, dynamic> data, DocumentReference reference) =>
-      serializers.deserializeWith(serializer,
-          {...mapFromFirestore(data), kDocumentReferenceField: reference})!;
+    Map<String, dynamic> data,
+    DocumentReference reference,
+  ) =>
+      ToDoListRecord._(reference, mapFromFirestore(data));
+
+  @override
+  String toString() =>
+      'ToDoListRecord(reference: ${reference.path}, data: $snapshotData)';
+
+  @override
+  int get hashCode => reference.path.hashCode;
+
+  @override
+  bool operator ==(other) =>
+      other is ToDoListRecord &&
+      reference.path.hashCode == other.reference.path.hashCode;
 }
 
 Map<String, dynamic> createToDoListRecordData({
@@ -61,18 +97,43 @@ Map<String, dynamic> createToDoListRecordData({
   DateTime? completedDate,
   DocumentReference? user,
 }) {
-  final firestoreData = serializers.toFirestore(
-    ToDoListRecord.serializer,
-    ToDoListRecord(
-      (t) => t
-        ..toDoDate = toDoDate
-        ..toDoName = toDoName
-        ..toDoDescription = toDoDescription
-        ..toDoState = toDoState
-        ..completedDate = completedDate
-        ..user = user,
-    ),
+  final firestoreData = mapToFirestore(
+    <String, dynamic>{
+      'toDoDate': toDoDate,
+      'toDoName': toDoName,
+      'toDoDescription': toDoDescription,
+      'toDoState': toDoState,
+      'completedDate': completedDate,
+      'user': user,
+    }.withoutNulls,
   );
 
   return firestoreData;
+}
+
+class ToDoListRecordDocumentEquality implements Equality<ToDoListRecord> {
+  const ToDoListRecordDocumentEquality();
+
+  @override
+  bool equals(ToDoListRecord? e1, ToDoListRecord? e2) {
+    return e1?.toDoDate == e2?.toDoDate &&
+        e1?.toDoName == e2?.toDoName &&
+        e1?.toDoDescription == e2?.toDoDescription &&
+        e1?.toDoState == e2?.toDoState &&
+        e1?.completedDate == e2?.completedDate &&
+        e1?.user == e2?.user;
+  }
+
+  @override
+  int hash(ToDoListRecord? e) => const ListEquality().hash([
+        e?.toDoDate,
+        e?.toDoName,
+        e?.toDoDescription,
+        e?.toDoState,
+        e?.completedDate,
+        e?.user
+      ]);
+
+  @override
+  bool isValidKey(Object? o) => o is ToDoListRecord;
 }

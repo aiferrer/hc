@@ -1,9 +1,9 @@
-import 'package:built_value/serializer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../auth/auth_util.dart';
+import '../auth/firebase_auth/auth_util.dart';
 
 import '../flutter_flow/flutter_flow_util.dart';
+import 'schema/util/firestore_util.dart';
 
 import 'schema/users_record.dart';
 import 'schema/to_do_list_record.dart';
@@ -20,12 +20,17 @@ import 'schema/direccion_record.dart';
 import 'schema/venta_record.dart';
 import 'schema/forma_pago_record.dart';
 import 'schema/ingresos_record.dart';
-import 'schema/serializers.dart';
+import 'schema/historial_cliente_record.dart';
+import 'schema/factura_record.dart';
+import 'schema/cliente_baja_record.dart';
+import 'schema/caja_record.dart';
+import 'schema/productos_seleccionados_carrito_record.dart';
 
 export 'dart:async' show StreamSubscription;
 export 'package:cloud_firestore/cloud_firestore.dart';
 export 'schema/index.dart';
-export 'schema/serializers.dart';
+export 'schema/util/firestore_util.dart';
+export 'schema/util/schema_util.dart';
 
 export 'schema/users_record.dart';
 export 'schema/to_do_list_record.dart';
@@ -42,6 +47,11 @@ export 'schema/direccion_record.dart';
 export 'schema/venta_record.dart';
 export 'schema/forma_pago_record.dart';
 export 'schema/ingresos_record.dart';
+export 'schema/historial_cliente_record.dart';
+export 'schema/factura_record.dart';
+export 'schema/cliente_baja_record.dart';
+export 'schema/caja_record.dart';
+export 'schema/productos_seleccionados_carrito_record.dart';
 
 /// Functions to query UsersRecords (as a Stream and as a Future).
 Future<int> queryUsersRecordCount({
@@ -61,7 +71,7 @@ Stream<List<UsersRecord>> queryUsersRecord({
 }) =>
     queryCollection(
       UsersRecord.collection,
-      UsersRecord.serializer,
+      UsersRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -74,25 +84,10 @@ Future<List<UsersRecord>> queryUsersRecordOnce({
 }) =>
     queryCollectionOnce(
       UsersRecord.collection,
-      UsersRecord.serializer,
+      UsersRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<UsersRecord>> queryUsersRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      UsersRecord.collection,
-      UsersRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query ToDoListRecords (as a Stream and as a Future).
@@ -113,7 +108,7 @@ Stream<List<ToDoListRecord>> queryToDoListRecord({
 }) =>
     queryCollection(
       ToDoListRecord.collection,
-      ToDoListRecord.serializer,
+      ToDoListRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -126,25 +121,10 @@ Future<List<ToDoListRecord>> queryToDoListRecordOnce({
 }) =>
     queryCollectionOnce(
       ToDoListRecord.collection,
-      ToDoListRecord.serializer,
+      ToDoListRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<ToDoListRecord>> queryToDoListRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      ToDoListRecord.collection,
-      ToDoListRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query ClienteRecords (as a Stream and as a Future).
@@ -165,7 +145,7 @@ Stream<List<ClienteRecord>> queryClienteRecord({
 }) =>
     queryCollection(
       ClienteRecord.collection,
-      ClienteRecord.serializer,
+      ClienteRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -178,25 +158,10 @@ Future<List<ClienteRecord>> queryClienteRecordOnce({
 }) =>
     queryCollectionOnce(
       ClienteRecord.collection,
-      ClienteRecord.serializer,
+      ClienteRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<ClienteRecord>> queryClienteRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      ClienteRecord.collection,
-      ClienteRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query ProductoRecords (as a Stream and as a Future).
@@ -217,7 +182,7 @@ Stream<List<ProductoRecord>> queryProductoRecord({
 }) =>
     queryCollection(
       ProductoRecord.collection,
-      ProductoRecord.serializer,
+      ProductoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -230,25 +195,10 @@ Future<List<ProductoRecord>> queryProductoRecordOnce({
 }) =>
     queryCollectionOnce(
       ProductoRecord.collection,
-      ProductoRecord.serializer,
+      ProductoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<ProductoRecord>> queryProductoRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      ProductoRecord.collection,
-      ProductoRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query MonedaRecords (as a Stream and as a Future).
@@ -269,7 +219,7 @@ Stream<List<MonedaRecord>> queryMonedaRecord({
 }) =>
     queryCollection(
       MonedaRecord.collection,
-      MonedaRecord.serializer,
+      MonedaRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -282,25 +232,10 @@ Future<List<MonedaRecord>> queryMonedaRecordOnce({
 }) =>
     queryCollectionOnce(
       MonedaRecord.collection,
-      MonedaRecord.serializer,
+      MonedaRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<MonedaRecord>> queryMonedaRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      MonedaRecord.collection,
-      MonedaRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query EstadoProductoRecords (as a Stream and as a Future).
@@ -321,7 +256,7 @@ Stream<List<EstadoProductoRecord>> queryEstadoProductoRecord({
 }) =>
     queryCollection(
       EstadoProductoRecord.collection,
-      EstadoProductoRecord.serializer,
+      EstadoProductoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -334,25 +269,10 @@ Future<List<EstadoProductoRecord>> queryEstadoProductoRecordOnce({
 }) =>
     queryCollectionOnce(
       EstadoProductoRecord.collection,
-      EstadoProductoRecord.serializer,
+      EstadoProductoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<EstadoProductoRecord>> queryEstadoProductoRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      EstadoProductoRecord.collection,
-      EstadoProductoRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query EstadoProcesoRecords (as a Stream and as a Future).
@@ -373,7 +293,7 @@ Stream<List<EstadoProcesoRecord>> queryEstadoProcesoRecord({
 }) =>
     queryCollection(
       EstadoProcesoRecord.collection,
-      EstadoProcesoRecord.serializer,
+      EstadoProcesoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -386,25 +306,10 @@ Future<List<EstadoProcesoRecord>> queryEstadoProcesoRecordOnce({
 }) =>
     queryCollectionOnce(
       EstadoProcesoRecord.collection,
-      EstadoProcesoRecord.serializer,
+      EstadoProcesoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<EstadoProcesoRecord>> queryEstadoProcesoRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      EstadoProcesoRecord.collection,
-      EstadoProcesoRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query CategoriaRecords (as a Stream and as a Future).
@@ -425,7 +330,7 @@ Stream<List<CategoriaRecord>> queryCategoriaRecord({
 }) =>
     queryCollection(
       CategoriaRecord.collection,
-      CategoriaRecord.serializer,
+      CategoriaRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -438,25 +343,10 @@ Future<List<CategoriaRecord>> queryCategoriaRecordOnce({
 }) =>
     queryCollectionOnce(
       CategoriaRecord.collection,
-      CategoriaRecord.serializer,
+      CategoriaRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<CategoriaRecord>> queryCategoriaRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      CategoriaRecord.collection,
-      CategoriaRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query DireccionesRetiroEnvioRecords (as a Stream and as a Future).
@@ -477,7 +367,7 @@ Stream<List<DireccionesRetiroEnvioRecord>> queryDireccionesRetiroEnvioRecord({
 }) =>
     queryCollection(
       DireccionesRetiroEnvioRecord.collection,
-      DireccionesRetiroEnvioRecord.serializer,
+      DireccionesRetiroEnvioRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -491,26 +381,10 @@ Future<List<DireccionesRetiroEnvioRecord>>
 }) =>
         queryCollectionOnce(
           DireccionesRetiroEnvioRecord.collection,
-          DireccionesRetiroEnvioRecord.serializer,
+          DireccionesRetiroEnvioRecord.fromSnapshot,
           queryBuilder: queryBuilder,
           limit: limit,
           singleRecord: singleRecord,
-        );
-
-Future<FFFirestorePage<DireccionesRetiroEnvioRecord>>
-    queryDireccionesRetiroEnvioRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-        queryCollectionPage(
-          DireccionesRetiroEnvioRecord.collection,
-          DireccionesRetiroEnvioRecord.serializer,
-          queryBuilder: queryBuilder,
-          nextPageMarker: nextPageMarker,
-          pageSize: pageSize,
-          isStream: isStream,
         );
 
 /// Functions to query HistorialProductoRecords (as a Stream and as a Future).
@@ -531,7 +405,7 @@ Stream<List<HistorialProductoRecord>> queryHistorialProductoRecord({
 }) =>
     queryCollection(
       HistorialProductoRecord.collection,
-      HistorialProductoRecord.serializer,
+      HistorialProductoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -544,27 +418,11 @@ Future<List<HistorialProductoRecord>> queryHistorialProductoRecordOnce({
 }) =>
     queryCollectionOnce(
       HistorialProductoRecord.collection,
-      HistorialProductoRecord.serializer,
+      HistorialProductoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
     );
-
-Future<FFFirestorePage<HistorialProductoRecord>>
-    queryHistorialProductoRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-        queryCollectionPage(
-          HistorialProductoRecord.collection,
-          HistorialProductoRecord.serializer,
-          queryBuilder: queryBuilder,
-          nextPageMarker: nextPageMarker,
-          pageSize: pageSize,
-          isStream: isStream,
-        );
 
 /// Functions to query FechaEstadoRecords (as a Stream and as a Future).
 Future<int> queryFechaEstadoRecordCount({
@@ -586,7 +444,7 @@ Stream<List<FechaEstadoRecord>> queryFechaEstadoRecord({
 }) =>
     queryCollection(
       FechaEstadoRecord.collection(parent),
-      FechaEstadoRecord.serializer,
+      FechaEstadoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -600,26 +458,10 @@ Future<List<FechaEstadoRecord>> queryFechaEstadoRecordOnce({
 }) =>
     queryCollectionOnce(
       FechaEstadoRecord.collection(parent),
-      FechaEstadoRecord.serializer,
+      FechaEstadoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<FechaEstadoRecord>> queryFechaEstadoRecordPage({
-  DocumentReference? parent,
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      FechaEstadoRecord.collection(parent),
-      FechaEstadoRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query DireccionRecords (as a Stream and as a Future).
@@ -642,7 +484,7 @@ Stream<List<DireccionRecord>> queryDireccionRecord({
 }) =>
     queryCollection(
       DireccionRecord.collection(parent),
-      DireccionRecord.serializer,
+      DireccionRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -656,26 +498,10 @@ Future<List<DireccionRecord>> queryDireccionRecordOnce({
 }) =>
     queryCollectionOnce(
       DireccionRecord.collection(parent),
-      DireccionRecord.serializer,
+      DireccionRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<DireccionRecord>> queryDireccionRecordPage({
-  DocumentReference? parent,
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      DireccionRecord.collection(parent),
-      DireccionRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query VentaRecords (as a Stream and as a Future).
@@ -696,7 +522,7 @@ Stream<List<VentaRecord>> queryVentaRecord({
 }) =>
     queryCollection(
       VentaRecord.collection,
-      VentaRecord.serializer,
+      VentaRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -709,25 +535,10 @@ Future<List<VentaRecord>> queryVentaRecordOnce({
 }) =>
     queryCollectionOnce(
       VentaRecord.collection,
-      VentaRecord.serializer,
+      VentaRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<VentaRecord>> queryVentaRecordPage({
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      VentaRecord.collection,
-      VentaRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query FormaPagoRecords (as a Stream and as a Future).
@@ -750,7 +561,7 @@ Stream<List<FormaPagoRecord>> queryFormaPagoRecord({
 }) =>
     queryCollection(
       FormaPagoRecord.collection(parent),
-      FormaPagoRecord.serializer,
+      FormaPagoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -764,26 +575,10 @@ Future<List<FormaPagoRecord>> queryFormaPagoRecordOnce({
 }) =>
     queryCollectionOnce(
       FormaPagoRecord.collection(parent),
-      FormaPagoRecord.serializer,
+      FormaPagoRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
-    );
-
-Future<FFFirestorePage<FormaPagoRecord>> queryFormaPagoRecordPage({
-  DocumentReference? parent,
-  Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
-}) =>
-    queryCollectionPage(
-      FormaPagoRecord.collection(parent),
-      FormaPagoRecord.serializer,
-      queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
     );
 
 /// Functions to query IngresosRecords (as a Stream and as a Future).
@@ -804,7 +599,7 @@ Stream<List<IngresosRecord>> queryIngresosRecord({
 }) =>
     queryCollection(
       IngresosRecord.collection,
-      IngresosRecord.serializer,
+      IngresosRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -817,26 +612,198 @@ Future<List<IngresosRecord>> queryIngresosRecordOnce({
 }) =>
     queryCollectionOnce(
       IngresosRecord.collection,
-      IngresosRecord.serializer,
+      IngresosRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
     );
 
-Future<FFFirestorePage<IngresosRecord>> queryIngresosRecordPage({
+/// Functions to query HistorialClienteRecords (as a Stream and as a Future).
+Future<int> queryHistorialClienteRecordCount({
   Query Function(Query)? queryBuilder,
-  DocumentSnapshot? nextPageMarker,
-  required int pageSize,
-  required bool isStream,
+  int limit = -1,
 }) =>
-    queryCollectionPage(
-      IngresosRecord.collection,
-      IngresosRecord.serializer,
+    queryCollectionCount(
+      HistorialClienteRecord.collection,
       queryBuilder: queryBuilder,
-      nextPageMarker: nextPageMarker,
-      pageSize: pageSize,
-      isStream: isStream,
+      limit: limit,
     );
+
+Stream<List<HistorialClienteRecord>> queryHistorialClienteRecord({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollection(
+      HistorialClienteRecord.collection,
+      HistorialClienteRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+Future<List<HistorialClienteRecord>> queryHistorialClienteRecordOnce({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollectionOnce(
+      HistorialClienteRecord.collection,
+      HistorialClienteRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+/// Functions to query FacturaRecords (as a Stream and as a Future).
+Future<int> queryFacturaRecordCount({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+}) =>
+    queryCollectionCount(
+      FacturaRecord.collection,
+      queryBuilder: queryBuilder,
+      limit: limit,
+    );
+
+Stream<List<FacturaRecord>> queryFacturaRecord({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollection(
+      FacturaRecord.collection,
+      FacturaRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+Future<List<FacturaRecord>> queryFacturaRecordOnce({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollectionOnce(
+      FacturaRecord.collection,
+      FacturaRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+/// Functions to query ClienteBajaRecords (as a Stream and as a Future).
+Future<int> queryClienteBajaRecordCount({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+}) =>
+    queryCollectionCount(
+      ClienteBajaRecord.collection,
+      queryBuilder: queryBuilder,
+      limit: limit,
+    );
+
+Stream<List<ClienteBajaRecord>> queryClienteBajaRecord({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollection(
+      ClienteBajaRecord.collection,
+      ClienteBajaRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+Future<List<ClienteBajaRecord>> queryClienteBajaRecordOnce({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollectionOnce(
+      ClienteBajaRecord.collection,
+      ClienteBajaRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+/// Functions to query CajaRecords (as a Stream and as a Future).
+Future<int> queryCajaRecordCount({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+}) =>
+    queryCollectionCount(
+      CajaRecord.collection,
+      queryBuilder: queryBuilder,
+      limit: limit,
+    );
+
+Stream<List<CajaRecord>> queryCajaRecord({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollection(
+      CajaRecord.collection,
+      CajaRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+Future<List<CajaRecord>> queryCajaRecordOnce({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+    queryCollectionOnce(
+      CajaRecord.collection,
+      CajaRecord.fromSnapshot,
+      queryBuilder: queryBuilder,
+      limit: limit,
+      singleRecord: singleRecord,
+    );
+
+/// Functions to query ProductosSeleccionadosCarritoRecords (as a Stream and as a Future).
+Future<int> queryProductosSeleccionadosCarritoRecordCount({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+}) =>
+    queryCollectionCount(
+      ProductosSeleccionadosCarritoRecord.collection,
+      queryBuilder: queryBuilder,
+      limit: limit,
+    );
+
+Stream<List<ProductosSeleccionadosCarritoRecord>>
+    queryProductosSeleccionadosCarritoRecord({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+        queryCollection(
+          ProductosSeleccionadosCarritoRecord.collection,
+          ProductosSeleccionadosCarritoRecord.fromSnapshot,
+          queryBuilder: queryBuilder,
+          limit: limit,
+          singleRecord: singleRecord,
+        );
+
+Future<List<ProductosSeleccionadosCarritoRecord>>
+    queryProductosSeleccionadosCarritoRecordOnce({
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) =>
+        queryCollectionOnce(
+          ProductosSeleccionadosCarritoRecord.collection,
+          ProductosSeleccionadosCarritoRecord.fromSnapshot,
+          queryBuilder: queryBuilder,
+          limit: limit,
+          singleRecord: singleRecord,
+        );
 
 Future<int> queryCollectionCount(
   Query collection, {
@@ -854,10 +821,13 @@ Future<int> queryCollectionCount(
   }).then((value) => value.count);
 }
 
-Stream<List<T>> queryCollection<T>(Query collection, Serializer<T> serializer,
-    {Query Function(Query)? queryBuilder,
-    int limit = -1,
-    bool singleRecord = false}) {
+Stream<List<T>> queryCollection<T>(
+  Query collection,
+  RecordBuilder<T> recordBuilder, {
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) {
   final builder = queryBuilder ?? (q) => q;
   var query = builder(collection);
   if (limit > 0 || singleRecord) {
@@ -868,7 +838,7 @@ Stream<List<T>> queryCollection<T>(Query collection, Serializer<T> serializer,
   }).map((s) => s.docs
       .map(
         (d) => safeGet(
-          () => serializers.deserializeWith(serializer, serializedData(d)),
+          () => recordBuilder(d),
           (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
         ),
       )
@@ -878,10 +848,12 @@ Stream<List<T>> queryCollection<T>(Query collection, Serializer<T> serializer,
 }
 
 Future<List<T>> queryCollectionOnce<T>(
-    Query collection, Serializer<T> serializer,
-    {Query Function(Query)? queryBuilder,
-    int limit = -1,
-    bool singleRecord = false}) {
+  Query collection,
+  RecordBuilder<T> recordBuilder, {
+  Query Function(Query)? queryBuilder,
+  int limit = -1,
+  bool singleRecord = false,
+}) {
   final builder = queryBuilder ?? (q) => q;
   var query = builder(collection);
   if (limit > 0 || singleRecord) {
@@ -890,7 +862,7 @@ Future<List<T>> queryCollectionOnce<T>(
   return query.get().then((s) => s.docs
       .map(
         (d) => safeGet(
-          () => serializers.deserializeWith(serializer, serializedData(d)),
+          () => recordBuilder(d),
           (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
         ),
       )
@@ -924,7 +896,7 @@ class FFFirestorePage<T> {
 
 Future<FFFirestorePage<T>> queryCollectionPage<T>(
   Query collection,
-  Serializer<T> serializer, {
+  RecordBuilder<T> recordBuilder, {
   Query Function(Query)? queryBuilder,
   DocumentSnapshot? nextPageMarker,
   required int pageSize,
@@ -946,7 +918,7 @@ Future<FFFirestorePage<T>> queryCollectionPage<T>(
   final getDocs = (QuerySnapshot s) => s.docs
       .map(
         (d) => safeGet(
-          () => serializers.deserializeWith(serializer, serializedData(d)),
+          () => recordBuilder(d),
           (e) => print('Error serializing doc ${d.reference.path}:\n$e'),
         ),
       )
@@ -978,6 +950,10 @@ Future maybeCreateUser(User user) async {
   );
 
   await userRecord.set(userData);
-  currentUserDocument =
-      serializers.deserializeWith(UsersRecord.serializer, userData);
+  currentUserDocument = UsersRecord.getDocumentFromData(userData, userRecord);
+}
+
+Future updateUserDocument({String? email}) async {
+  await currentUserDocument?.reference
+      .update(createUsersRecordData(email: email));
 }

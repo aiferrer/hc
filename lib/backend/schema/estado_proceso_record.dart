@@ -1,57 +1,88 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
+import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+
 import 'index.dart';
-import 'serializers.dart';
-import 'package:built_value/built_value.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
-part 'estado_proceso_record.g.dart';
+class EstadoProcesoRecord extends FirestoreRecord {
+  EstadoProcesoRecord._(
+    DocumentReference reference,
+    Map<String, dynamic> data,
+  ) : super(reference, data) {
+    _initializeFields();
+  }
 
-abstract class EstadoProcesoRecord
-    implements Built<EstadoProcesoRecord, EstadoProcesoRecordBuilder> {
-  static Serializer<EstadoProcesoRecord> get serializer =>
-      _$estadoProcesoRecordSerializer;
+  // "Estado" field.
+  String? _estado;
+  String get estado => _estado ?? '';
+  bool hasEstado() => _estado != null;
 
-  @BuiltValueField(wireName: 'Estado')
-  String? get estado;
-
-  @BuiltValueField(wireName: kDocumentReferenceField)
-  DocumentReference? get ffRef;
-  DocumentReference get reference => ffRef!;
-
-  static void _initializeBuilder(EstadoProcesoRecordBuilder builder) =>
-      builder..estado = '';
+  void _initializeFields() {
+    _estado = snapshotData['Estado'] as String?;
+  }
 
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('Estado_Proceso');
 
-  static Stream<EstadoProcesoRecord> getDocument(DocumentReference ref) => ref
-      .snapshots()
-      .map((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Stream<EstadoProcesoRecord> getDocument(DocumentReference ref) =>
+      ref.snapshots().map((s) => EstadoProcesoRecord.fromSnapshot(s));
 
   static Future<EstadoProcesoRecord> getDocumentOnce(DocumentReference ref) =>
-      ref.get().then(
-          (s) => serializers.deserializeWith(serializer, serializedData(s))!);
+      ref.get().then((s) => EstadoProcesoRecord.fromSnapshot(s));
 
-  EstadoProcesoRecord._();
-  factory EstadoProcesoRecord(
-          [void Function(EstadoProcesoRecordBuilder) updates]) =
-      _$EstadoProcesoRecord;
+  static EstadoProcesoRecord fromSnapshot(DocumentSnapshot snapshot) =>
+      EstadoProcesoRecord._(
+        snapshot.reference,
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+      );
 
   static EstadoProcesoRecord getDocumentFromData(
-          Map<String, dynamic> data, DocumentReference reference) =>
-      serializers.deserializeWith(serializer,
-          {...mapFromFirestore(data), kDocumentReferenceField: reference})!;
+    Map<String, dynamic> data,
+    DocumentReference reference,
+  ) =>
+      EstadoProcesoRecord._(reference, mapFromFirestore(data));
+
+  @override
+  String toString() =>
+      'EstadoProcesoRecord(reference: ${reference.path}, data: $snapshotData)';
+
+  @override
+  int get hashCode => reference.path.hashCode;
+
+  @override
+  bool operator ==(other) =>
+      other is EstadoProcesoRecord &&
+      reference.path.hashCode == other.reference.path.hashCode;
 }
 
 Map<String, dynamic> createEstadoProcesoRecordData({
   String? estado,
 }) {
-  final firestoreData = serializers.toFirestore(
-    EstadoProcesoRecord.serializer,
-    EstadoProcesoRecord(
-      (e) => e..estado = estado,
-    ),
+  final firestoreData = mapToFirestore(
+    <String, dynamic>{
+      'Estado': estado,
+    }.withoutNulls,
   );
 
   return firestoreData;
+}
+
+class EstadoProcesoRecordDocumentEquality
+    implements Equality<EstadoProcesoRecord> {
+  const EstadoProcesoRecordDocumentEquality();
+
+  @override
+  bool equals(EstadoProcesoRecord? e1, EstadoProcesoRecord? e2) {
+    return e1?.estado == e2?.estado;
+  }
+
+  @override
+  int hash(EstadoProcesoRecord? e) => const ListEquality().hash([e?.estado]);
+
+  @override
+  bool isValidKey(Object? o) => o is EstadoProcesoRecord;
 }

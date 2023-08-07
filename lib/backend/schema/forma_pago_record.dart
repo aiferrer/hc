@@ -1,31 +1,37 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
+import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+
 import 'index.dart';
-import 'serializers.dart';
-import 'package:built_value/built_value.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
-part 'forma_pago_record.g.dart';
+class FormaPagoRecord extends FirestoreRecord {
+  FormaPagoRecord._(
+    DocumentReference reference,
+    Map<String, dynamic> data,
+  ) : super(reference, data) {
+    _initializeFields();
+  }
 
-abstract class FormaPagoRecord
-    implements Built<FormaPagoRecord, FormaPagoRecordBuilder> {
-  static Serializer<FormaPagoRecord> get serializer =>
-      _$formaPagoRecordSerializer;
+  // "Efectivo" field.
+  double? _efectivo;
+  double get efectivo => _efectivo ?? 0.0;
+  bool hasEfectivo() => _efectivo != null;
 
-  @BuiltValueField(wireName: 'Efectivo')
-  double? get efectivo;
-
-  @BuiltValueField(wireName: 'Transferencia')
-  double? get transferencia;
-
-  @BuiltValueField(wireName: kDocumentReferenceField)
-  DocumentReference? get ffRef;
-  DocumentReference get reference => ffRef!;
+  // "Transferencia" field.
+  double? _transferencia;
+  double get transferencia => _transferencia ?? 0.0;
+  bool hasTransferencia() => _transferencia != null;
 
   DocumentReference get parentReference => reference.parent.parent!;
 
-  static void _initializeBuilder(FormaPagoRecordBuilder builder) => builder
-    ..efectivo = 0.0
-    ..transferencia = 0.0;
+  void _initializeFields() {
+    _efectivo = castToType<double>(snapshotData['Efectivo']);
+    _transferencia = castToType<double>(snapshotData['Transferencia']);
+  }
 
   static Query<Map<String, dynamic>> collection([DocumentReference? parent]) =>
       parent != null
@@ -35,36 +41,64 @@ abstract class FormaPagoRecord
   static DocumentReference createDoc(DocumentReference parent) =>
       parent.collection('Forma_Pago').doc();
 
-  static Stream<FormaPagoRecord> getDocument(DocumentReference ref) => ref
-      .snapshots()
-      .map((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Stream<FormaPagoRecord> getDocument(DocumentReference ref) =>
+      ref.snapshots().map((s) => FormaPagoRecord.fromSnapshot(s));
 
-  static Future<FormaPagoRecord> getDocumentOnce(DocumentReference ref) => ref
-      .get()
-      .then((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Future<FormaPagoRecord> getDocumentOnce(DocumentReference ref) =>
+      ref.get().then((s) => FormaPagoRecord.fromSnapshot(s));
 
-  FormaPagoRecord._();
-  factory FormaPagoRecord([void Function(FormaPagoRecordBuilder) updates]) =
-      _$FormaPagoRecord;
+  static FormaPagoRecord fromSnapshot(DocumentSnapshot snapshot) =>
+      FormaPagoRecord._(
+        snapshot.reference,
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+      );
 
   static FormaPagoRecord getDocumentFromData(
-          Map<String, dynamic> data, DocumentReference reference) =>
-      serializers.deserializeWith(serializer,
-          {...mapFromFirestore(data), kDocumentReferenceField: reference})!;
+    Map<String, dynamic> data,
+    DocumentReference reference,
+  ) =>
+      FormaPagoRecord._(reference, mapFromFirestore(data));
+
+  @override
+  String toString() =>
+      'FormaPagoRecord(reference: ${reference.path}, data: $snapshotData)';
+
+  @override
+  int get hashCode => reference.path.hashCode;
+
+  @override
+  bool operator ==(other) =>
+      other is FormaPagoRecord &&
+      reference.path.hashCode == other.reference.path.hashCode;
 }
 
 Map<String, dynamic> createFormaPagoRecordData({
   double? efectivo,
   double? transferencia,
 }) {
-  final firestoreData = serializers.toFirestore(
-    FormaPagoRecord.serializer,
-    FormaPagoRecord(
-      (f) => f
-        ..efectivo = efectivo
-        ..transferencia = transferencia,
-    ),
+  final firestoreData = mapToFirestore(
+    <String, dynamic>{
+      'Efectivo': efectivo,
+      'Transferencia': transferencia,
+    }.withoutNulls,
   );
 
   return firestoreData;
+}
+
+class FormaPagoRecordDocumentEquality implements Equality<FormaPagoRecord> {
+  const FormaPagoRecordDocumentEquality();
+
+  @override
+  bool equals(FormaPagoRecord? e1, FormaPagoRecord? e2) {
+    return e1?.efectivo == e2?.efectivo &&
+        e1?.transferencia == e2?.transferencia;
+  }
+
+  @override
+  int hash(FormaPagoRecord? e) =>
+      const ListEquality().hash([e?.efectivo, e?.transferencia]);
+
+  @override
+  bool isValidKey(Object? o) => o is FormaPagoRecord;
 }

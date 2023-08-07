@@ -1,55 +1,86 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
+import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+
 import 'index.dart';
-import 'serializers.dart';
-import 'package:built_value/built_value.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
-part 'moneda_record.g.dart';
+class MonedaRecord extends FirestoreRecord {
+  MonedaRecord._(
+    DocumentReference reference,
+    Map<String, dynamic> data,
+  ) : super(reference, data) {
+    _initializeFields();
+  }
 
-abstract class MonedaRecord
-    implements Built<MonedaRecord, MonedaRecordBuilder> {
-  static Serializer<MonedaRecord> get serializer => _$monedaRecordSerializer;
+  // "Moneda" field.
+  String? _moneda;
+  String get moneda => _moneda ?? '';
+  bool hasMoneda() => _moneda != null;
 
-  @BuiltValueField(wireName: 'Moneda')
-  String? get moneda;
-
-  @BuiltValueField(wireName: kDocumentReferenceField)
-  DocumentReference? get ffRef;
-  DocumentReference get reference => ffRef!;
-
-  static void _initializeBuilder(MonedaRecordBuilder builder) =>
-      builder..moneda = '';
+  void _initializeFields() {
+    _moneda = snapshotData['Moneda'] as String?;
+  }
 
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('Moneda');
 
-  static Stream<MonedaRecord> getDocument(DocumentReference ref) => ref
-      .snapshots()
-      .map((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Stream<MonedaRecord> getDocument(DocumentReference ref) =>
+      ref.snapshots().map((s) => MonedaRecord.fromSnapshot(s));
 
-  static Future<MonedaRecord> getDocumentOnce(DocumentReference ref) => ref
-      .get()
-      .then((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Future<MonedaRecord> getDocumentOnce(DocumentReference ref) =>
+      ref.get().then((s) => MonedaRecord.fromSnapshot(s));
 
-  MonedaRecord._();
-  factory MonedaRecord([void Function(MonedaRecordBuilder) updates]) =
-      _$MonedaRecord;
+  static MonedaRecord fromSnapshot(DocumentSnapshot snapshot) => MonedaRecord._(
+        snapshot.reference,
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+      );
 
   static MonedaRecord getDocumentFromData(
-          Map<String, dynamic> data, DocumentReference reference) =>
-      serializers.deserializeWith(serializer,
-          {...mapFromFirestore(data), kDocumentReferenceField: reference})!;
+    Map<String, dynamic> data,
+    DocumentReference reference,
+  ) =>
+      MonedaRecord._(reference, mapFromFirestore(data));
+
+  @override
+  String toString() =>
+      'MonedaRecord(reference: ${reference.path}, data: $snapshotData)';
+
+  @override
+  int get hashCode => reference.path.hashCode;
+
+  @override
+  bool operator ==(other) =>
+      other is MonedaRecord &&
+      reference.path.hashCode == other.reference.path.hashCode;
 }
 
 Map<String, dynamic> createMonedaRecordData({
   String? moneda,
 }) {
-  final firestoreData = serializers.toFirestore(
-    MonedaRecord.serializer,
-    MonedaRecord(
-      (m) => m..moneda = moneda,
-    ),
+  final firestoreData = mapToFirestore(
+    <String, dynamic>{
+      'Moneda': moneda,
+    }.withoutNulls,
   );
 
   return firestoreData;
+}
+
+class MonedaRecordDocumentEquality implements Equality<MonedaRecord> {
+  const MonedaRecordDocumentEquality();
+
+  @override
+  bool equals(MonedaRecord? e1, MonedaRecord? e2) {
+    return e1?.moneda == e2?.moneda;
+  }
+
+  @override
+  int hash(MonedaRecord? e) => const ListEquality().hash([e?.moneda]);
+
+  @override
+  bool isValidKey(Object? o) => o is MonedaRecord;
 }

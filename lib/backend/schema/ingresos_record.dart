@@ -1,56 +1,86 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
+import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+
 import 'index.dart';
-import 'serializers.dart';
-import 'package:built_value/built_value.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
-part 'ingresos_record.g.dart';
+class IngresosRecord extends FirestoreRecord {
+  IngresosRecord._(
+    DocumentReference reference,
+    Map<String, dynamic> data,
+  ) : super(reference, data) {
+    _initializeFields();
+  }
 
-abstract class IngresosRecord
-    implements Built<IngresosRecord, IngresosRecordBuilder> {
-  static Serializer<IngresosRecord> get serializer =>
-      _$ingresosRecordSerializer;
+  // "Fecha_Ingreso" field.
+  DateTime? _fechaIngreso;
+  DateTime? get fechaIngreso => _fechaIngreso;
+  bool hasFechaIngreso() => _fechaIngreso != null;
 
-  @BuiltValueField(wireName: 'Fecha_Ingreso')
-  DateTime? get fechaIngreso;
+  // "Concepto" field.
+  String? _concepto;
+  String get concepto => _concepto ?? '';
+  bool hasConcepto() => _concepto != null;
 
-  @BuiltValueField(wireName: 'Concepto')
-  String? get concepto;
+  // "Monto_Total" field.
+  double? _montoTotal;
+  double get montoTotal => _montoTotal ?? 0.0;
+  bool hasMontoTotal() => _montoTotal != null;
 
-  @BuiltValueField(wireName: 'Monto_Total')
-  double? get montoTotal;
+  // "Comision" field.
+  double? _comision;
+  double get comision => _comision ?? 0.0;
+  bool hasComision() => _comision != null;
 
-  @BuiltValueField(wireName: 'Comision')
-  double? get comision;
+  // "Usuario" field.
+  DocumentReference? _usuario;
+  DocumentReference? get usuario => _usuario;
+  bool hasUsuario() => _usuario != null;
 
-  @BuiltValueField(wireName: kDocumentReferenceField)
-  DocumentReference? get ffRef;
-  DocumentReference get reference => ffRef!;
-
-  static void _initializeBuilder(IngresosRecordBuilder builder) => builder
-    ..concepto = ''
-    ..montoTotal = 0.0
-    ..comision = 0.0;
+  void _initializeFields() {
+    _fechaIngreso = snapshotData['Fecha_Ingreso'] as DateTime?;
+    _concepto = snapshotData['Concepto'] as String?;
+    _montoTotal = castToType<double>(snapshotData['Monto_Total']);
+    _comision = castToType<double>(snapshotData['Comision']);
+    _usuario = snapshotData['Usuario'] as DocumentReference?;
+  }
 
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('Ingresos');
 
-  static Stream<IngresosRecord> getDocument(DocumentReference ref) => ref
-      .snapshots()
-      .map((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Stream<IngresosRecord> getDocument(DocumentReference ref) =>
+      ref.snapshots().map((s) => IngresosRecord.fromSnapshot(s));
 
-  static Future<IngresosRecord> getDocumentOnce(DocumentReference ref) => ref
-      .get()
-      .then((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Future<IngresosRecord> getDocumentOnce(DocumentReference ref) =>
+      ref.get().then((s) => IngresosRecord.fromSnapshot(s));
 
-  IngresosRecord._();
-  factory IngresosRecord([void Function(IngresosRecordBuilder) updates]) =
-      _$IngresosRecord;
+  static IngresosRecord fromSnapshot(DocumentSnapshot snapshot) =>
+      IngresosRecord._(
+        snapshot.reference,
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+      );
 
   static IngresosRecord getDocumentFromData(
-          Map<String, dynamic> data, DocumentReference reference) =>
-      serializers.deserializeWith(serializer,
-          {...mapFromFirestore(data), kDocumentReferenceField: reference})!;
+    Map<String, dynamic> data,
+    DocumentReference reference,
+  ) =>
+      IngresosRecord._(reference, mapFromFirestore(data));
+
+  @override
+  String toString() =>
+      'IngresosRecord(reference: ${reference.path}, data: $snapshotData)';
+
+  @override
+  int get hashCode => reference.path.hashCode;
+
+  @override
+  bool operator ==(other) =>
+      other is IngresosRecord &&
+      reference.path.hashCode == other.reference.path.hashCode;
 }
 
 Map<String, dynamic> createIngresosRecordData({
@@ -58,17 +88,37 @@ Map<String, dynamic> createIngresosRecordData({
   String? concepto,
   double? montoTotal,
   double? comision,
+  DocumentReference? usuario,
 }) {
-  final firestoreData = serializers.toFirestore(
-    IngresosRecord.serializer,
-    IngresosRecord(
-      (i) => i
-        ..fechaIngreso = fechaIngreso
-        ..concepto = concepto
-        ..montoTotal = montoTotal
-        ..comision = comision,
-    ),
+  final firestoreData = mapToFirestore(
+    <String, dynamic>{
+      'Fecha_Ingreso': fechaIngreso,
+      'Concepto': concepto,
+      'Monto_Total': montoTotal,
+      'Comision': comision,
+      'Usuario': usuario,
+    }.withoutNulls,
   );
 
   return firestoreData;
+}
+
+class IngresosRecordDocumentEquality implements Equality<IngresosRecord> {
+  const IngresosRecordDocumentEquality();
+
+  @override
+  bool equals(IngresosRecord? e1, IngresosRecord? e2) {
+    return e1?.fechaIngreso == e2?.fechaIngreso &&
+        e1?.concepto == e2?.concepto &&
+        e1?.montoTotal == e2?.montoTotal &&
+        e1?.comision == e2?.comision &&
+        e1?.usuario == e2?.usuario;
+  }
+
+  @override
+  int hash(IngresosRecord? e) => const ListEquality().hash(
+      [e?.fechaIngreso, e?.concepto, e?.montoTotal, e?.comision, e?.usuario]);
+
+  @override
+  bool isValidKey(Object? o) => o is IngresosRecord;
 }

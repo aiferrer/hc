@@ -1,57 +1,88 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+
+import '/backend/schema/util/firestore_util.dart';
+import '/backend/schema/util/schema_util.dart';
+
 import 'index.dart';
-import 'serializers.dart';
-import 'package:built_value/built_value.dart';
+import '/flutter_flow/flutter_flow_util.dart';
 
-part 'estado_producto_record.g.dart';
+class EstadoProductoRecord extends FirestoreRecord {
+  EstadoProductoRecord._(
+    DocumentReference reference,
+    Map<String, dynamic> data,
+  ) : super(reference, data) {
+    _initializeFields();
+  }
 
-abstract class EstadoProductoRecord
-    implements Built<EstadoProductoRecord, EstadoProductoRecordBuilder> {
-  static Serializer<EstadoProductoRecord> get serializer =>
-      _$estadoProductoRecordSerializer;
+  // "Estado" field.
+  String? _estado;
+  String get estado => _estado ?? '';
+  bool hasEstado() => _estado != null;
 
-  @BuiltValueField(wireName: 'Estado')
-  String? get estado;
-
-  @BuiltValueField(wireName: kDocumentReferenceField)
-  DocumentReference? get ffRef;
-  DocumentReference get reference => ffRef!;
-
-  static void _initializeBuilder(EstadoProductoRecordBuilder builder) =>
-      builder..estado = '';
+  void _initializeFields() {
+    _estado = snapshotData['Estado'] as String?;
+  }
 
   static CollectionReference get collection =>
       FirebaseFirestore.instance.collection('Estado_Producto');
 
-  static Stream<EstadoProductoRecord> getDocument(DocumentReference ref) => ref
-      .snapshots()
-      .map((s) => serializers.deserializeWith(serializer, serializedData(s))!);
+  static Stream<EstadoProductoRecord> getDocument(DocumentReference ref) =>
+      ref.snapshots().map((s) => EstadoProductoRecord.fromSnapshot(s));
 
   static Future<EstadoProductoRecord> getDocumentOnce(DocumentReference ref) =>
-      ref.get().then(
-          (s) => serializers.deserializeWith(serializer, serializedData(s))!);
+      ref.get().then((s) => EstadoProductoRecord.fromSnapshot(s));
 
-  EstadoProductoRecord._();
-  factory EstadoProductoRecord(
-          [void Function(EstadoProductoRecordBuilder) updates]) =
-      _$EstadoProductoRecord;
+  static EstadoProductoRecord fromSnapshot(DocumentSnapshot snapshot) =>
+      EstadoProductoRecord._(
+        snapshot.reference,
+        mapFromFirestore(snapshot.data() as Map<String, dynamic>),
+      );
 
   static EstadoProductoRecord getDocumentFromData(
-          Map<String, dynamic> data, DocumentReference reference) =>
-      serializers.deserializeWith(serializer,
-          {...mapFromFirestore(data), kDocumentReferenceField: reference})!;
+    Map<String, dynamic> data,
+    DocumentReference reference,
+  ) =>
+      EstadoProductoRecord._(reference, mapFromFirestore(data));
+
+  @override
+  String toString() =>
+      'EstadoProductoRecord(reference: ${reference.path}, data: $snapshotData)';
+
+  @override
+  int get hashCode => reference.path.hashCode;
+
+  @override
+  bool operator ==(other) =>
+      other is EstadoProductoRecord &&
+      reference.path.hashCode == other.reference.path.hashCode;
 }
 
 Map<String, dynamic> createEstadoProductoRecordData({
   String? estado,
 }) {
-  final firestoreData = serializers.toFirestore(
-    EstadoProductoRecord.serializer,
-    EstadoProductoRecord(
-      (e) => e..estado = estado,
-    ),
+  final firestoreData = mapToFirestore(
+    <String, dynamic>{
+      'Estado': estado,
+    }.withoutNulls,
   );
 
   return firestoreData;
+}
+
+class EstadoProductoRecordDocumentEquality
+    implements Equality<EstadoProductoRecord> {
+  const EstadoProductoRecordDocumentEquality();
+
+  @override
+  bool equals(EstadoProductoRecord? e1, EstadoProductoRecord? e2) {
+    return e1?.estado == e2?.estado;
+  }
+
+  @override
+  int hash(EstadoProductoRecord? e) => const ListEquality().hash([e?.estado]);
+
+  @override
+  bool isValidKey(Object? o) => o is EstadoProductoRecord;
 }
